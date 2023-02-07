@@ -365,6 +365,10 @@ public class AStarAgent extends Agent {
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, 
     									   MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
+    	
+    	//  
+    	
+    	
      	return new Stack<MapLocation>();
     }
     

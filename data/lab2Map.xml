@@ -39,16 +39,6 @@
             <durationAttack>25</durationAttack>
             <durationDeposit>1</durationDeposit>
         </template>
-        <resourceAmount>
-            <quantity>0</quantity>
-            <type>GOLD</type>
-        </resourceAmount>
-        <resourceAmount>
-            <quantity>0</quantity>
-            <type>WOOD</type>
-        </resourceAmount>
-        <supply>0</supply>
-        <supplyCap>0</supplyCap>
     </player>
     <player>
         <ID>1</ID>
@@ -90,16 +80,6 @@
             <durationDeposit>1</durationDeposit>
             <produces>26</produces>
         </template>
-        <resourceAmount>
-            <quantity>0</quantity>
-            <type>GOLD</type>
-        </resourceAmount>
-        <resourceAmount>
-            <quantity>0</quantity>
-            <type>WOOD</type>
-        </resourceAmount>
-        <supply>0</supply>
-        <supplyCap>0</supplyCap>
     </player>
     <resourceNode>
         <ID>10</ID>
@@ -133,6 +113,7 @@
         <initialAmount>0</initialAmount>
         <amountRemaining>5000</amountRemaining>
     </resourceNode>
+    
     <resourceNode>
         <ID>14</ID>
         <type>TREE</type>
@@ -157,6 +138,7 @@
         <initialAmount>0</initialAmount>
         <amountRemaining>5000</amountRemaining>
     </resourceNode>
+    
     <resourceNode>
         <ID>18</ID>
         <type>TREE</type>

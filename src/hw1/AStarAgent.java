@@ -395,16 +395,30 @@ public class AStarAgent extends Agent {
     	*/
     	Stack<MapLocation> stack = new Stack<MapLocation>();
     	MapLocation currentLocation = start;
+    	
     	while (true) {
-    		MapLocation toGo = null;
+    		MapLocation toGo = currentLocation;
     		double minCost = Double.POSITIVE_INFINITY;
+    		int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
     		
-    		// check northwest
-    		int x = currentLocation.x-1;
-    		int y = currentLocation.y-1;
-    		if (x>=0 && y>=0) {
-    			if (x == goal.x && y == goal.y) {
-    				break;
+    		for (int[] direction: directions) {
+    			int currX = direction[0];
+    			int currY = direction[1];
+    			// check if candidate is in bounds
+    			if (currX >= 0 && currX <= xExtent-1 && currY >= 0 && currY <= yExtent-1) {
+    				// check if candidate is the goal
+    				if (currX == goal.x && currY == goal.y) {
+    					break;
+    				}
+    				// check if candidate is a resource location
+    				Iterator<MapLocation> resourceIterator = resourceLocations.iterator();
+        			while (resourceIterator.hasNext()) {
+        				if (resourceIterator.next().x == currX && resourceIterator.next().y == currY) {
+        					break;
+        				}
+        			}
+    				// check if candidate is an enemy location
+    				
     			}
     		}
     		

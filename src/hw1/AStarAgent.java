@@ -395,29 +395,33 @@ public class AStarAgent extends Agent {
     	*/
     	Stack<MapLocation> stack = new Stack<MapLocation>();
     	MapLocation currentLocation = start;
+    	HashMap<Integer, MapLocation> seenHashMap = new HashMap<Integer, MapLocation>();
     	
     	while (true) {
-    		MapLocation toGo = currentLocation;
     		double minCost = Double.POSITIVE_INFINITY;
     		int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
     		
     		for (int[] direction: directions) {
-    			int currX = direction[0];
-    			int currY = direction[1];
+    			MapLocation candidateLocation = new MapLocation(direction[0], direction[1], currentLocation, heuristic(direction[0], direction[1], goal), currentLocation.pathCost+1);
     			// check if candidate is in bounds
-    			if (currX >= 0 && currX <= xExtent-1 && currY >= 0 && currY <= yExtent-1) {
+    			if (candidateLocation.x >= 0 && candidateLocation.x <= xExtent-1 && candidateLocation.y >= 0 && candidateLocation.y <= yExtent-1) {
     				// check if candidate is the goal
-    				if (currX == goal.x && currY == goal.y) {
+    				if (candidateLocation.equals(goal)) {
     					break;
     				}
     				// check if candidate is a resource location
     				Iterator<MapLocation> resourceIterator = resourceLocations.iterator();
         			while (resourceIterator.hasNext()) {
-        				if (resourceIterator.next().x == currX && resourceIterator.next().y == currY) {
+        				if (resourceIterator.equals(candidateLocation)) {
         					break;
         				}
         			}
     				// check if candidate is an enemy location
+        			if (candidateLocation.equals(enemyFootmanLoc)) {
+        				break;
+        			}
+        			// check if candidate has been seen
+        			
     				
     			}
     		}

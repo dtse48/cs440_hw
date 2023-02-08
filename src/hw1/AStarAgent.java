@@ -369,13 +369,11 @@ public class AStarAgent extends Agent {
     	 	initialize currentLocation to start
 	    	initialize a stack
 	    	while true:
-	    		init minLocation
+	    		init toGo
 	    		init minCost to inf
-	    		init foundTownHall
     			for each direction:
     				if location is the townhall:
-    					foundTownHall = true
-    					break
+    					break out of while loop
     				if location is out of bounds:
     					continue
     				if location is a resource:
@@ -385,10 +383,11 @@ public class AStarAgent extends Agent {
     				if location has been seen:
     					continue
     				else:
-    					if cost of location is minimal, set minLocation to this location. set minCost to this cost
+    					if cost of location is minimal, set toGo to this location. set minCost to this cost
     			if minCost is still infinity, return null 
-    			set currentLocation to minLocation
-    			if foundTownHall, break
+    			update all of toGo's attributes
+    			set currentLocation to toGo
+
     		
     		traverse the path by backtracking through currentLocation, adding each MapLocation onto the stack
     		return stack
@@ -405,7 +404,6 @@ public class AStarAgent extends Agent {
     		int y = currentLocation.y-1;
     		if (x>=0 && y>=0) {
     			if (x == goal.x && y == goal.y) {
-    				toGo = currentLocation;
     				break;
     			}
     		}

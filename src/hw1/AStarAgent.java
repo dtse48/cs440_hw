@@ -412,7 +412,7 @@ public class AStarAgent extends Agent {
     				// check if candidate is a resource location
     				Iterator<MapLocation> resourceIterator = resourceLocations.iterator();
         			while (resourceIterator.hasNext()) {
-        				if (resourceIterator.equals(candidateLocation)) {
+        				if (resourceIterator.next().equals(candidateLocation)) {
         					break;
         				}
         			}

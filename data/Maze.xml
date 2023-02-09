@@ -2,7 +2,7 @@
 	<Map>data/MazeMap.xml</Map>
 	<Player Id="0">
 		<AgentClass>
-			<ClassName>hw1.AStarAgentSolution</ClassName>
+			<ClassName>hw1.AStarAgent</ClassName>
 			<Argument>0</Argument>
 		</AgentClass>
 	</Player>

@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
+import org.omg.CORBA.PUBLIC_MEMBER;
+
 public class AStarAgent extends Agent {
 
  /**
@@ -362,73 +364,85 @@ public class AStarAgent extends Agent {
      * @param resourceLocations Set of positions occupied by resources
      * @return Stack of positions with top of stack being first move in plan
      */
+    public static boolean isResource(MapLocation pt, Set<MapLocation> resourceLocations) {
+    	Iterator<MapLocation> resourceIterator = resourceLocations.iterator();
+		while (resourceIterator.hasNext()) {
+			if (resourceIterator.next().equals(pt)) {
+				return true;
+			}
+		}
+		return false;
+	}
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, 
     									   MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
-    	/*
-    	 	initialize currentLocation to start
-	    	initialize a stack
-	    	while true:
-	    		init toGo
-	    		init minCost to inf
-    			for each direction:
-    				if location is the townhall:
-    					break out of while loop
-    				if location is out of bounds:
-    					continue
-    				if location is a resource:
-    					continue
-    				if location is an enemy:
-    					continue
-    				if location has been seen:
-    					continue
-    				else:
-    					if cost of location is minimal, set toGo to this location. set minCost to this cost
-    			if minCost is still infinity, return null 
-    			update all of toGo's attributes
-    			set currentLocation to toGo
-
-    		
-    		traverse the path by backtracking through currentLocation, adding each MapLocation onto the stack
-    		return stack
     	
-    	*/
-    	Stack<MapLocation> stack = new Stack<MapLocation>();
+//    	System.out.println("hello");
+    	
     	MapLocation currentLocation = start;
-    	HashMap<Integer, MapLocation> seenHashMap = new HashMap<Integer, MapLocation>();
+    	currentLocation.pathCost = (int) heuristic(currentLocation.x, currentLocation.y, goal); // to properly calculate pathCost
+    	HashMap<Integer, MapLocation> seenHashMap = new HashMap<Integer, MapLocation>(); // to keep track of finished nodes
+    	seenHashMap.put(start.hashCode(), start);
+    	int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
+    	Stack<MapLocation> stack = new Stack<MapLocation>(); // will ultimately be returned
     	
     	while (true) {
-    		double minCost = Double.POSITIVE_INFINITY;
-    		int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
     		
+    		double minCost = Double.POSITIVE_INFINITY;
+    		MapLocation toGo = currentLocation;
+    		boolean stopIter = false;
     		for (int[] direction: directions) {
-    			MapLocation candidateLocation = new MapLocation(direction[0], direction[1], currentLocation, heuristic(direction[0], direction[1], goal), currentLocation.pathCost+1);
+    			int candidateX = direction[0];
+    			int candidateY = direction[1];
+    			MapLocation cameFrom = currentLocation;
+    			int cost = (int) heuristic(candidateX, candidateY, goal);
+    			int pathCost = cameFrom.pathCost+cost+1;
+    			MapLocation candidateLocation = new MapLocation(candidateX, candidateY, cameFrom, cost, pathCost);
     			// check if candidate is in bounds
     			if (candidateLocation.x >= 0 && candidateLocation.x <= xExtent-1 && candidateLocation.y >= 0 && candidateLocation.y <= yExtent-1) {
+    				System.out.println(candidateLocation);
     				// check if candidate is the goal
     				if (candidateLocation.equals(goal)) {
+    					stopIter = true;
+    					
     					break;
     				}
     				// check if candidate is a resource location
-    				Iterator<MapLocation> resourceIterator = resourceLocations.iterator();
-        			while (resourceIterator.hasNext()) {
-        				if (resourceIterator.next().equals(candidateLocation)) {
-        					break;
-        				}
-        			}
+    				if (isResource(candidateLocation, resourceLocations)) {
+    					continue;
+    				}
     				// check if candidate is an enemy location
         			if (candidateLocation.equals(enemyFootmanLoc)) {
-        				break;
+        				continue;
         			}
         			// check if candidate has been seen
-        			
-    				
+        			int hash = candidateLocation.hashCode();
+        			if (seenHashMap.containsKey(hash)) {
+        				continue;
+        			}
+    				// if we've made it here, the candidate is valid -- check if its pathCost is minimal
+        			if (candidateLocation.pathCost < minCost) {
+        				minCost = candidateLocation.pathCost;
+        				toGo = candidateLocation;
+        			}
     			}
     		}
+    		System.out.println("hopefully we make it here");
+    		// if we've found the goal, start backtracking through the path to create the stack
+    		if (stopIter) {
+    			MapLocation trav = toGo;
+    			while (!trav.equals(start)) {
+    				stack.push(trav);
+    				trav = trav.cameFrom;
+    			}
+    			return stack;
+    		}
+			seenHashMap.put(toGo.hashCode(), toGo); // make sure we mark this location as finished
+			currentLocation = toGo;
     		
     	}
     	
-     	return new Stack<MapLocation>();
+//     	return new Stack<MapLocation>();
     }
     
     /**

@@ -383,14 +383,16 @@ public class AStarAgent extends Agent {
     	currentLocation.pathCost = (int) heuristic(currentLocation.x, currentLocation.y, goal); // to properly calculate pathCost
     	HashMap<Integer, MapLocation> seenHashMap = new HashMap<Integer, MapLocation>(); // to keep track of finished nodes
     	seenHashMap.put(start.hashCode(), start);
-    	int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
     	Stack<MapLocation> stack = new Stack<MapLocation>(); // will ultimately be returned
     	
     	while (true) {
     		
+    		int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
+//    		System.out.println("we are currently at "+currentLocation);
     		double minCost = Double.POSITIVE_INFINITY;
     		MapLocation toGo = currentLocation;
     		boolean stopIter = false;
+    		
     		for (int[] direction: directions) {
     			int candidateX = direction[0];
     			int candidateY = direction[1];
@@ -400,15 +402,14 @@ public class AStarAgent extends Agent {
     			MapLocation candidateLocation = new MapLocation(candidateX, candidateY, cameFrom, cost, pathCost);
     			// check if candidate is in bounds
     			if (candidateLocation.x >= 0 && candidateLocation.x <= xExtent-1 && candidateLocation.y >= 0 && candidateLocation.y <= yExtent-1) {
-    				System.out.println(candidateLocation);
     				// check if candidate is the goal
     				if (candidateLocation.equals(goal)) {
     					stopIter = true;
-    					
     					break;
     				}
     				// check if candidate is a resource location
     				if (isResource(candidateLocation, resourceLocations)) {
+//    					System.out.println("this is a resource");
     					continue;
     				}
     				// check if candidate is an enemy location
@@ -427,7 +428,6 @@ public class AStarAgent extends Agent {
         			}
     			}
     		}
-    		System.out.println("hopefully we make it here");
     		// if we've found the goal, start backtracking through the path to create the stack
     		if (stopIter) {
     			MapLocation trav = toGo;

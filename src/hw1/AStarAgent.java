@@ -373,76 +373,68 @@ public class AStarAgent extends Agent {
 		}
 		return false;
 	}
+    
+    public Stack<MapLocation> AstarSearchWorker(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, 
+    														Set<MapLocation> resourceLocations, HashMap<Integer, MapLocation> seen) {
+    	seen.put(start.hashCode(), start); // mark current node as finished
+    	int[][] directions = {{start.x-1,start.y-1},{start.x,start.y-1}, // all the possible candidates we need to check
+    						 {start.x+1,start.y-1},{start.x-1,start.y},
+    						 {start.x+1,start.y},{start.x-1,start.y+1},
+    						 {start.x,start.y+1},{start.x+1,start.y+1}};
+		double minCost = Double.POSITIVE_INFINITY;
+		MapLocation toGo = start;
+		
+		for (int[] direction: directions) { // for each candidate, see if candidate is optimal
+			int candidateX = direction[0];
+			int candidateY = direction[1];
+			MapLocation cameFrom = start;
+			int cost = (int) heuristic(candidateX, candidateY, goal);
+			int pathCost = cameFrom.pathCost+cost+1;
+			MapLocation candidateLocation = new MapLocation(candidateX, candidateY, cameFrom, cost, pathCost);
+			// check if candidate is in bounds
+			if (candidateLocation.x >= 0 && candidateLocation.x <= xExtent-1 && candidateLocation.y >= 0 && candidateLocation.y <= yExtent-1) {
+				// check if candidate is the goal
+				if (candidateLocation.equals(goal)) {
+					Stack<MapLocation> path = new Stack<MapLocation>();
+					return path;
+				}
+				// check if candidate is a resource location
+				if (isResource(candidateLocation, resourceLocations)) {
+//					System.out.println("this is a resource");
+					continue;
+				}
+				// check if candidate is an enemy location
+    			if (candidateLocation.equals(enemyFootmanLoc)) {
+    				continue;
+    			}
+    			// check if candidate has been seen
+    			int hash = candidateLocation.hashCode();
+    			if (seen.containsKey(hash)) {
+    				continue;
+    			}
+				// if we've made it here, the candidate is valid -- check if its pathCost is minimal
+    			if (candidateLocation.pathCost < minCost) {
+    				minCost = candidateLocation.pathCost;
+    				toGo = candidateLocation;
+    			}
+			}
+		}
+		
+		// find the rest of the path, then add toGo to it
+		Stack <MapLocation> rest = AstarSearchWorker(toGo, goal, xExtent, yExtent, enemyFootmanLoc, resourceLocations, seen);
+		rest.push(toGo);
+		return rest;
+		
+    }
+    
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, 
     									   MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
     	
-//    	System.out.println("hello");
+    	start.pathCost = (int) heuristic(start.x, start.y, goal); // to properly calculate pathCost
+    	HashMap<Integer, MapLocation> seen = new HashMap<Integer, MapLocation>(); // to keep track of finished nodes
     	
-    	MapLocation currentLocation = start;
-    	currentLocation.pathCost = (int) heuristic(currentLocation.x, currentLocation.y, goal); // to properly calculate pathCost
-    	HashMap<Integer, MapLocation> seenHashMap = new HashMap<Integer, MapLocation>(); // to keep track of finished nodes
-    	seenHashMap.put(start.hashCode(), start);
-    	Stack<MapLocation> stack = new Stack<MapLocation>(); // will ultimately be returned
-    	
-    	while (true) {
-    		
-    		int[][] directions = {{currentLocation.x-1,currentLocation.y-1},{currentLocation.x,currentLocation.y-1},{currentLocation.x+1,currentLocation.y-1},{currentLocation.x-1,currentLocation.y},{currentLocation.x+1,currentLocation.y},{currentLocation.x-1,currentLocation.y+1},{currentLocation.x,currentLocation.y+1},{currentLocation.x+1,currentLocation.y+1}};
-//    		System.out.println("we are currently at "+currentLocation);
-    		double minCost = Double.POSITIVE_INFINITY;
-    		MapLocation toGo = currentLocation;
-    		boolean stopIter = false;
-    		
-    		for (int[] direction: directions) {
-    			int candidateX = direction[0];
-    			int candidateY = direction[1];
-    			MapLocation cameFrom = currentLocation;
-    			int cost = (int) heuristic(candidateX, candidateY, goal);
-    			int pathCost = cameFrom.pathCost+cost+1;
-    			MapLocation candidateLocation = new MapLocation(candidateX, candidateY, cameFrom, cost, pathCost);
-    			// check if candidate is in bounds
-    			if (candidateLocation.x >= 0 && candidateLocation.x <= xExtent-1 && candidateLocation.y >= 0 && candidateLocation.y <= yExtent-1) {
-    				// check if candidate is the goal
-    				if (candidateLocation.equals(goal)) {
-    					stopIter = true;
-    					break;
-    				}
-    				// check if candidate is a resource location
-    				if (isResource(candidateLocation, resourceLocations)) {
-//    					System.out.println("this is a resource");
-    					continue;
-    				}
-    				// check if candidate is an enemy location
-        			if (candidateLocation.equals(enemyFootmanLoc)) {
-        				continue;
-        			}
-        			// check if candidate has been seen
-        			int hash = candidateLocation.hashCode();
-        			if (seenHashMap.containsKey(hash)) {
-        				continue;
-        			}
-    				// if we've made it here, the candidate is valid -- check if its pathCost is minimal
-        			if (candidateLocation.pathCost < minCost) {
-        				minCost = candidateLocation.pathCost;
-        				toGo = candidateLocation;
-        			}
-    			}
-    		}
-    		// if we've found the goal, start backtracking through the path to create the stack
-    		if (stopIter) {
-    			MapLocation trav = toGo;
-    			while (!trav.equals(start)) {
-    				stack.push(trav);
-    				trav = trav.cameFrom;
-    			}
-    			return stack;
-    		}
-			seenHashMap.put(toGo.hashCode(), toGo); // make sure we mark this location as finished
-			currentLocation = toGo;
-    		
-    	}
-    	
-//     	return new Stack<MapLocation>();
+    	return AstarSearchWorker(start, goal, xExtent, yExtent, enemyFootmanLoc, resourceLocations, seen);
     }
     
     /**
@@ -541,7 +533,7 @@ public class AStarAgent extends Agent {
      * @param goal the goal node position.
      * @return the Chebyshev distance from (x, y) -> (goal.x, goal.y)
      */
-    private float heuristic(int x,int y, MapLocation goal) { 
+    private static float heuristic(int x,int y, MapLocation goal) { 
     	return Math.max(Math.abs(x - goal.x), Math.abs(y - goal.y));
     }
 

@@ -275,8 +275,21 @@ public class AStarAgent extends Agent {
      * @param currentPath the path to check
      * @return true if the agent should recalculate the plan (for example because the current plan is blocked)
      */
-    private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
+  private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
     {
+    	Object checkThis = currentPath.clone();
+    	
+    	Stack<MapLocation> somePath = (Stack<MapLocation>) checkThis;
+                     
+    	while(!somePath.empty()) {
+    		MapLocation checkThisLoc = somePath.pop();
+    		if (state.isUnitAt(checkThisLoc.x, checkThisLoc.y)) {
+    			if (state.unitAt(checkThisLoc.x, checkThisLoc.y) == enemyFootmanID) {
+    				System.out.println("should replan path returned true");
+    				return true;
+    			}
+    		}
+    	}
     	return false;
     }
 

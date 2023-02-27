@@ -21,8 +21,8 @@ public class AStarAgent extends Agent {
  /**
   * A class to represent the location of an object in a map. Stores x, y position as well as the MapLocation
   * that came before it (for path searching), f(n) and g(n) of the node.
-  * @author Daniel Tse
-  * @author Ingi Hong
+  * @author Daniel Tse, BUID: U05871766
+  * @author Ingi Hong, BUID: 
   *
   */
     class MapLocation
@@ -403,37 +403,7 @@ public class AStarAgent extends Agent {
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, 
     									   MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {	
-//    	HashMap<Integer,MapLocation> unfinalized = new HashMap<Integer,MapLocation>();
-//    	HashMap<Integer,MapLocation> finalized = new HashMap<Integer, MapLocation>();
-//    	PriorityQueue<MapLocation> test = new PriorityQueue<AStarAgent.MapLocation>();
-//    	test.add(start);
-//    	unfinalized.put(start.hashCode(), start);
-//    	MapLocation currentNode = start;
-//    	while (!currentNode.equals(goal)) {
-//    		MapLocation min = poll(unfinalized);
-//    		System.out.println(min);
-//    		finalized.put(min.hashCode(), min);
-//    		unfinalized.remove(min.hashCode());
-//    		ArrayList<MapLocation> neighbors = getAndCheckNeighbors(min.g+1, min, goal, xExtent, yExtent, enemyFootmanLoc, resourceLocations);
-//    		System.out.println(neighbors);
-//    		for (MapLocation neighbor: neighbors) {
-//    			// if neighbor is already finalized, skip it
-//    			if (finalized.containsKey(neighbor.hashCode())) {
-//    				continue;
-//    			}
-//    			// if neighbor is already in unfinalized, see if we should replace it
-//    			if (unfinalized.containsKey(neighbor.hashCode())) {  
-//    				MapLocation node = unfinalized.get(neighbor.hashCode());
-//    				if (neighbor.f < node.f) {
-//    					unfinalized.replace(node.hashCode(),neighbor);
-//    				}
-//    			}
-//    			unfinalized.put(neighbor.hashCode(), neighbor);
-//    		}
-//    		currentNode = min;
-//    	}
-//    	Stack<MapLocation> path = new Stack<MapLocation>();
-//    	return tracePath(start, currentNode.cameFrom,path);
+    	// to make maplocations comparable in the priority queue
     	class MapLocationComparator implements Comparator<MapLocation> {
 
 			public int compare(MapLocation o1, MapLocation o2) {
@@ -449,9 +419,10 @@ public class AStarAgent extends Agent {
     		
     	}
     	
-    	PriorityQueue<MapLocation> unfinalized = new PriorityQueue<MapLocation>(xExtent*yExtent,new MapLocationComparator());
+    	// data structures needed
+    	PriorityQueue<MapLocation> unfinalized = new PriorityQueue<MapLocation>(xExtent*yExtent,new MapLocationComparator()); // a star heap
     	HashMap<Integer,MapLocation> finalized = new HashMap<Integer, MapLocation>();
-    	HashMap<Integer,MapLocation> unfinalizedCosts = new HashMap<Integer, MapLocation>();
+    	HashMap<Integer,MapLocation> unfinalizedCosts = new HashMap<Integer, MapLocation>(); // to get cost of each node in O(1) time
     	
     	MapLocation currentNode = start;
     	unfinalized.add(start);
@@ -459,10 +430,8 @@ public class AStarAgent extends Agent {
     	while (!currentNode.equals(goal)) {
     		MapLocation min = unfinalized.poll();
     		unfinalizedCosts.remove(min.hashCode());
-//    		System.out.println(min);
     		finalized.put(min.hashCode(), min);
     		ArrayList<MapLocation> neighbors = getAndCheckNeighbors(min.g+1, min, goal, xExtent, yExtent, enemyFootmanLoc, resourceLocations);
-//    		System.out.println(neighbors);
     		for (MapLocation neighbor: neighbors) {
     			// if neighbor is already finalized, skip it
     			if (finalized.containsKey(neighbor.hashCode())) {
@@ -471,9 +440,9 @@ public class AStarAgent extends Agent {
     			// if neighbor is already in unfinalized, see if we should replace it
     			if (unfinalizedCosts.containsKey(neighbor.hashCode())) {  
     				MapLocation existingCost = unfinalizedCosts.get(neighbor.hashCode());
+    				// if we found a cheaper path to neighbor, replace it in the heap
     				if (neighbor.f < existingCost.f) {
     					unfinalized.remove(existingCost);
-//    					unfinalized.add(neighbor);
     					unfinalizedCosts.replace(neighbor.hashCode(),neighbor);
     					unfinalized.add(neighbor);
     				}
@@ -486,6 +455,7 @@ public class AStarAgent extends Agent {
     		}
     		currentNode = min;
     	}
+    	// recreate the stack once we are done
     	Stack<MapLocation> path = new Stack<MapLocation>();
     	return tracePath(start, currentNode.cameFrom,path);
     	

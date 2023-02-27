@@ -297,7 +297,7 @@ public class AStarAgent extends Agent {
     		MapLocation checkThisLoc = somePath.pop();
     		if (state.isUnitAt(checkThisLoc.x, checkThisLoc.y)) {
     			if (state.unitAt(checkThisLoc.x, checkThisLoc.y) == enemyFootmanID) {
-    				System.out.println("should replan path returned true");
+//    				System.out.println("should replan path returned true");
     				return true;
     			}
     		}

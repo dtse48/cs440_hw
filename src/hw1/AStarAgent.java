@@ -22,7 +22,7 @@ public class AStarAgent extends Agent {
   * A class to represent the location of an object in a map. Stores x, y position as well as the MapLocation
   * that came before it (for path searching), f(n) and g(n) of the node.
   * @author Daniel Tse, BUID: U05871766
-  * @author Ingi Hong, BUID: 
+  * @author Ingi Hong, BUID: U35399731
   *
   */
     class MapLocation
